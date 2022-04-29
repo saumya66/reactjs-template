@@ -33,13 +33,12 @@ import { useGetUserMutation } from '../user/userAPI';
 
 const Navbar = ()=>{
     const history = useHistory();
-    const location = useLocation();
     const [logoutUser] = useLogoutUserMutation()
-    const [getUser]  = useGetUserMutation()
     const { colorMode, toggleColorMode } = useColorMode()
     const { isOpen, onOpen, onClose } = useDisclosure()
     const user = useSelector(state => state.auth)
     const btnRef = React.useRef()
+
     const handleClick = (e, path) => {
         e.preventDefault()
         if(isOpen)onClose();
@@ -57,28 +56,7 @@ const Navbar = ()=>{
             console.log(error)
         }
     }
-    const handleIsLoggedIn = async() => {     
-        try{
-            const refreshToken = Cookies.get("refreshToken")
-            if(!refreshToken){
-                store.dispatch(logout())
-                if(location.pathname != '/auth/signup' && location.pathname != '/auth/login')history.push("/")
-                return
-            }
-            if(refreshToken){   // - sets a new access token if expired in interceptor - used to get the user's info
-               const user = await getUser().unwrap()   
-               console.log(user)
-               store.dispatch(setUser({isLoggedIn:true, userId: user?.user?.id, email: user?.user?.email }))
-            }
-            if(location.pathname === '/auth/signup' || location.pathname === '/auth/login')history.push("/")
-            }
-        catch(err){
-            console.log(err)
-        }
-    }
-    useEffect(()=>{
-        handleIsLoggedIn()
-    },[])
+ 
 
     return(
     <>

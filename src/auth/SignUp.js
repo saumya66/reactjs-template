@@ -1,22 +1,58 @@
 import { Box, Button, Flex, Text, useToast } from '@chakra-ui/react';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {  Formik } from "formik";
 import Cookies from 'js-cookie'
 
 import { setUser } from './authSlice';
 import store from '../app/store';
-import { useRegisterUserMutation } from './authApi';
+import { useRegisterGoogleUserMutation, useRegisterUserMutation } from './authApi';
 import { signUpSchema } from '../app/validations';
 import { useHistory} from 'react-router-dom';
 import TextInput from '../components/TextInput';
+import GoogleLogin from 'react-google-login';
+import {FcGoogle} from "react-icons/fc"
 
 const SignUp = ()=>{
- 
+    const refreshToken = Cookies.get("refreshToken")
     const history = useHistory();
     const [register, isLoading] = useRegisterUserMutation()
     const toast = useToast()
     const [signUpError, setSignUpError] =  useState()
+    const [googleRegister] = useRegisterGoogleUserMutation()
 
+    const handleGoogleSignUp = async (googleData) => {
+        try{
+            const userInfo = await googleRegister(googleData.tokenId).unwrap()
+            console.log(userInfo)
+            let date = new Date();
+            let accessTokenExpireDate=  new Date(date.getTime() +(60*1000));
+            let refreshTokenExpireDate=  new Date(date.getTime() +(86400*1000));
+            Cookies.set("accessToken",userInfo?.tokens?.accessToken, {expires: accessTokenExpireDate})
+            Cookies.set("refreshToken",userInfo?.tokens?.refreshToken,{expires: refreshTokenExpireDate})
+            store.dispatch(setUser({isLoggedIn:true, userId: userInfo?.user?._id, email: userInfo?.user?.email }))
+            toast({
+                title:  "Logged In" ,
+                description: "Welcome to the app." ,
+                status: "success",
+                duration: 2000,
+                isClosable: true,
+            })        
+            history.push("/")
+        }
+        catch(err){
+            console.log(err)
+            toast({
+                title:  "Invalid Credentials" ,
+                description: err?.data?.message ,
+                status: "error",
+                duration: 2000,
+                isClosable: true,
+            })
+        }
+    }
+    useEffect(()=>{
+        refreshToken && history.push("/")
+    },[])
     const handleSignUp = async(values,actions)=>{
         setSignUpError("")
         try{
@@ -76,6 +112,15 @@ const SignUp = ()=>{
                 </form>
                 )}
             </Formik>
+            <GoogleLogin
+                clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}
+                render={renderProps => (
+                    <Button onClick={renderProps.onClick} disabled={renderProps.disabled} leftIcon={<FcGoogle size={28} />}>Sign Up With Google</Button>
+                )}
+                onSuccess={handleGoogleSignUp}
+                onFailure={handleGoogleSignUp}
+                cookiePolicy={'single_host_origin'}
+            />
             </Flex>
         </Box>
     )

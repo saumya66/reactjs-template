@@ -3,12 +3,12 @@ import Cookies from 'js-cookie'
 
 const authSlice = createSlice({
   name: 'auth',
-  initialState: {isLoggedIn:null, userId: null, name: null, email: null, picture: null},
+  initialState: {isLoggedIn:false, userId: null, name: null, email: null, picture: null},
   reducers: {
     setUser: (
       state,
       {
-        payload: {isLoggedIn=null, userId = '',name = '', email='', userImage = ''},
+        payload: {isLoggedIn=false, userId = '',name = '', email='', userImage = ''},
       },
     ) => {
       if(isLoggedIn) {

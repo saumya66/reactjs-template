@@ -34,9 +34,28 @@ export const authAPI = createApi({
 				data: {refreshToken},
 			}),
 		}),
+		registerGoogleUser: builder.mutation({
+			query: (token) => ({
+				url: '/v1/auth/google-register',
+				method: 'POST',
+				data: {token},
+			}),
+		}),
+		loginGoogleUser: builder.mutation({
+			query: (token) => ({
+				url: '/v1/auth/google-login',
+				method: 'POST',
+				data: {token},
+			}),
+		}),
 	}),
 })
 
 export const {
-	useRegisterUserMutation,useLoginUserMutation, useGetAccessTokenMutation, useLogoutUserMutation
+	useRegisterUserMutation,
+	useLoginUserMutation, 
+	useGetAccessTokenMutation, 
+	useLogoutUserMutation, 
+	useLoginGoogleUserMutation,
+	useRegisterGoogleUserMutation
 } = authAPI
