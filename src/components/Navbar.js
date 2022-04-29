@@ -21,6 +21,7 @@ import {
     MenuOptionGroup,
     MenuDivider,
   } from '@chakra-ui/react'
+
 import Cookies from 'js-cookie';
 import { FaRegUserCircle } from "react-icons/fa";
 import { useSelector } from 'react-redux';
@@ -39,7 +40,6 @@ const Navbar = ()=>{
     const { isOpen, onOpen, onClose } = useDisclosure()
     const user = useSelector(state => state.auth)
     const btnRef = React.useRef()
-
     const handleClick = (e, path) => {
         e.preventDefault()
         if(isOpen)onClose();
@@ -57,28 +57,32 @@ const Navbar = ()=>{
             console.log(error)
         }
     }
-    const handleIsLoggedIn = async() => {                  
-        if(typeof window !== "undefined"){
+    const handleIsLoggedIn = async() => {     
+        try{
             const refreshToken = Cookies.get("refreshToken")
             if(!refreshToken){
                 store.dispatch(logout())
-                if(location.pathname != '/auth/signup' && location.pathname != '/auth/login')history.push("/",undefined, { shallow: true })
+                if(location.pathname != '/auth/signup' && location.pathname != '/auth/login')history.push("/")
                 return
             }
-            if(refreshToken){   // - sets a new acc token if expired in interceptor - used to get the user's info
+            if(refreshToken){   // - sets a new access token if expired in interceptor - used to get the user's info
                const user = await getUser().unwrap()   
                console.log(user)
                store.dispatch(setUser({isLoggedIn:true, userId: user?.user?.id, email: user?.user?.email }))
             }
-            if(location.pathname == '/auth/signup' || location.pathname == '/auth/login')history.push("/",undefined, { shallow: true })
+            if(location.pathname === '/auth/signup' || location.pathname === '/auth/login')history.push("/")
+            }
+        catch(err){
+            console.log(err)
         }
     }
     useEffect(()=>{
-        typeof window !== 'undefined' && handleIsLoggedIn()
+        handleIsLoggedIn()
     },[])
+
     return(
     <>
-    <Flex zIndex={20} bg="transparent" h="60px" w="100%" pos={"fixed"} display={["none","none","flex","flex"]} px="4" py="2" alignItems="center">
+    <Flex zIndex={20} bg="transparent" h="60px" w="100%" pos={"sticky"} display={["none","none","flex","flex"]} px="4" py="2" alignItems="center">
         <Box >
             <Link to="/">
             <Text>Project Name</Text>

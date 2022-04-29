@@ -1,4 +1,4 @@
-import { Box, Button, Flex, Text } from '@chakra-ui/react';
+import { Box, Button, Flex, Text, useToast } from '@chakra-ui/react';
 import React, { useState } from 'react';
 import TextInput from '../components/TextInput';
 import { Formik } from "formik";
@@ -7,18 +7,17 @@ import { useLoginUserMutation } from './authApi';
 import { setUser } from './authSlice';
 import Cookies from 'js-cookie'
 import store from '../app/store';
-import ToastMessage from '../components/toast';
 import { useHistory } from 'react-router-dom';
-
+ 
 const Login = ()=>{
     const history = useHistory();
     const [login] = useLoginUserMutation()
-    const notify = (type, message) => {
-        ToastMessage({ type, message });
-    }
+    const toast = useToast()
+ 
     const [loginError, setLoginError] =  useState()
 
     const handleLogin = async(values,actions)=>{
+
         try{
             const userInfo = await login(values).unwrap()
             let date = new Date();
@@ -27,20 +26,32 @@ const Login = ()=>{
             Cookies.set("accessToken",userInfo?.tokens?.accessToken, {expires: accessTokenExpireDate})
             Cookies.set("refreshToken",userInfo?.tokens?.refreshToken,{expires: refreshTokenExpireDate})
             store.dispatch(setUser({isLoggedIn:true, userId: userInfo?.user?._id, email: userInfo?.user?.email }))
-            notify("success","Logged In");
+            toast({
+                title:  "Logged In" ,
+                description: "Welcome to the app." ,
+                status: "success",
+                duration: 2000,
+                isClosable: true,
+            })        
             history.push("/")
         }
         catch(err){
             console.log(err?.data?.message)
             setLoginError(err?.data?.message)
-            notify("error", "Invalid Credentials !")
+            toast({
+                title:  "Invalid Credentials" ,
+                description: "Please try again." ,
+                status: "error",
+                duration: 2000,
+                isClosable: true,
+            })
         }
         actions.setSubmitting(false);
     }
     return(
         <Box 
-        minH="100vh" minW="100vw" pt="60px" display="flex" alignItems="center" justifyContent="center">
-        <Flex direction="column" w={["92vw", "68vw" , "48vw","36vw"]} borderRadius="10" h="600px" bg="white" boxShadow='xl' p="8">
+        h="100%" w="100%" pt="5%" display="flex" alignItems="center" justifyContent="center">
+        <Flex direction="column" w={["92%", "68%" , "48%","36%"]} borderRadius="10" minH="500px" bg="bg" boxShadow='2xl' p="8">
             <Text fontSize="30px" color="brand.800" fontWeight="bold" mb={8}>Log In</Text>
             <Formik
               initialValues={{ email: "", password: "" }}

@@ -1,11 +1,10 @@
-import { Box, Button, Flex, Text } from '@chakra-ui/react';
+import { Box, Button, Flex, Text, useToast } from '@chakra-ui/react';
 import React, { useState } from 'react';
 import {  Formik } from "formik";
 import Cookies from 'js-cookie'
 
- import { setUser } from './authSlice';
+import { setUser } from './authSlice';
 import store from '../app/store';
-import ToastMessage from '../components/toast';
 import { useRegisterUserMutation } from './authApi';
 import { signUpSchema } from '../app/validations';
 import { useHistory} from 'react-router-dom';
@@ -15,9 +14,7 @@ const SignUp = ()=>{
  
     const history = useHistory();
     const [register, isLoading] = useRegisterUserMutation()
-    const notify = (type, message) => {
-        ToastMessage({ type, message });
-    }
+    const toast = useToast()
     const [signUpError, setSignUpError] =  useState()
 
     const handleSignUp = async(values,actions)=>{
@@ -30,27 +27,32 @@ const SignUp = ()=>{
             Cookies.set("accessToken",userInfo?.tokens?.accessToken, {expires: accessTokenExpireDate})
             Cookies.set("refreshToken",userInfo?.tokens?.refreshToken,{expires: refreshTokenExpireDate})
             store.dispatch(setUser({isLoggedIn:true, userId: userInfo?.user?._id, email: userInfo?.user?.email }))
-            notify("success","Welcome");
+            toast({
+                title:  "Signed Up" ,
+                description: "Welcome to the app." ,
+                status: "success",
+                duration: 2000,
+                isClosable: true,
+            })        
             history.push("/")
         }
         catch(err){
             console.log(err?.data?.message)
             setSignUpError(err?.data?.message)
-            notify("error", "Invalid Credentials !")
+            toast({
+                title: "Invalid Credentials" ,
+                description: "Please try again." ,
+                status: "error",
+                duration: 2000,
+                isClosable: true,
+            })
         }
         actions.setSubmitting(false);
     }
     return(
-        <Box 
-            // sx={{
-            // backgroundColor: "#ffffff",
-            // opacity: 0.8,
-            // backgroundImage: "radial-gradient(#444cf7 0.75px, #ffffff 0.75px)",
-            // backgroundSize: "15px 15px"
-            // }} 
-            minH="100vh" minW="100vw" pt="60px" display="flex" alignItems="center" justifyContent="center">
-            <Flex direction="column" w={["92vw", "68vw" , "48vw","36vw"]} borderRadius="10" h="600px" bg="white" boxShadow='xl' p="8">
-            {/* <ToastContainer /> */}
+        <Box
+            h="100%" w="100%" pt="5%" display="flex" alignItems="center" justifyContent="center">
+            <Flex direction="column" w={["92vw", "68vw" , "48vw","36vw"]} borderRadius="10" minH="500px" bg="bg" boxShadow='2xl' p="8">
                 <Text fontSize="30px" color="brand.800" fontWeight="bold" mb={8}>Sign Up</Text>
                 <Formik
                   initialValues={{ email: "", password: "" }}
