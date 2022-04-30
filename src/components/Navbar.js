@@ -72,8 +72,8 @@ const Navbar = ()=>{
             {colorMode === 'light' ? <BsFillMoonStarsFill/> : <BsFillSunFill/>}
             </Button>
         </Center>
-        {user.isLoggedIn ? <Menu>
-            <MenuButton as={Button} color='brand.800' ml="4" leftIcon={<FaRegUserCircle/>}>
+        {user?.isLoggedIn ? <Menu>
+            <MenuButton as={Button} color='bg' ml="4" leftIcon={<FaRegUserCircle/>}>
                 Profile
             </MenuButton>
             <MenuList>

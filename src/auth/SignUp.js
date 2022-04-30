@@ -50,9 +50,9 @@ const SignUp = ()=>{
             })
         }
     }
-    useEffect(()=>{
-        refreshToken && history.push("/")
-    },[])
+    // useEffect(()=>{
+    //     refreshToken && history.push("/")
+    // },[])
     const handleSignUp = async(values,actions)=>{
         setSignUpError("")
         try{

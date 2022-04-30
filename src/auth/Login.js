@@ -84,9 +84,9 @@ const Login = ()=>{
         }
         actions.setSubmitting(false);
     }
-    useEffect(()=>{
-        refreshToken && history.push("/")
-    },[])
+    // useEffect(()=>{
+    //     refreshToken && history.push("/")
+    // },[])
     return(
         <Box 
         h="100%" w="100%" pt="5%" display="flex" alignItems="center" justifyContent="center">
